@@ -73,10 +73,7 @@ export default function ProfilePage() {
       {!loading && profile && (
         <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
           <div className="space-y-4">
-            <div>
-              <p className="text-sm text-gray-500 font-medium">ID de Usuario</p>
-              <p className="text-gray-900 font-mono text-sm bg-gray-50 p-2 rounded mt-1">{profile.id}</p>
-            </div>
+
             <div>
               <p className="text-sm text-gray-500 font-medium">Correo Electrónico</p>
               <p className="text-gray-900 text-lg">{profile.email}</p>

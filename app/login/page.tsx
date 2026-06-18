@@ -17,9 +17,7 @@ export default function LoginPage() {
     <div className="max-w-md mx-auto mt-20 bg-white p-8 border border-gray-200 rounded-lg shadow-sm">
       <h1 className="text-2xl font-bold mb-6 text-center text-gray-900">Iniciar Sesión</h1>
       
-      <div className="mb-6 p-3 bg-yellow-50 text-yellow-800 text-sm rounded border border-yellow-200">
-        <strong>Nota:</strong> Este login es temporal para pruebas del Frontend. Ingresa cualquier correo para continuar.
-      </div>
+
 
       <form onSubmit={handleLogin}>
         <div className="mb-4">

@@ -81,7 +81,7 @@ export default function CartPage() {
 
   return (
     <div className="max-w-4xl mx-auto mt-10">
-      <h1 className="text-3xl font-bold mb-8">Carrito de Compras</h1>
+      <h1 className="text-3xl font-black text-slate-900 mb-8">Mi Orden</h1>
 
       {successMsg && (
         <div className="bg-green-50 text-green-800 p-6 rounded-lg mb-8 text-center border border-green-200">
