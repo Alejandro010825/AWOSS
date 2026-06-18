@@ -1,46 +1,43 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { getUserFromRequest } from '@/lib/auth'; 
 
 export async function GET(request: NextRequest) {
-  const authHeader = request.headers.get('authorization');
-  
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return NextResponse.json({
-      code: "AUTH_TOKEN_MISSING_OR_INVALID",
-      message: "Credenciales ausentes o firma de token expirada.",
-      details: [{ field: "Authorization", rule: "required_bearer_token" }]
-    }, { status: 401 });
-  }
+  try {
+    const userFromToken = await getUserFromRequest(request);
 
-  const token = authHeader.split(' ')[1];
-
-  if (token === 'admin-token') {
-    const adminUser = await prisma.user.findFirst({
-      where: { role: 'ADMIN' }
-    });
-    if (adminUser) {
-      return NextResponse.json(adminUser, { status: 200 });
+    if (!userFromToken) {
+      return NextResponse.json({ 
+        code: "AUTH_TOKEN_MISSING_OR_INVALID", 
+        message: "Credenciales ausentes, firma de token expirada o inválida." 
+      }, { status: 401 });
     }
-    return NextResponse.json({ error: "No admin user found in DB" }, { status: 404 });
-  }
 
-  if (token.startsWith('client-token-')) {
-    const userId = token.replace('client-token-', '');
-    try {
-      const user = await prisma.user.findUnique({
-        where: { id: userId }
-      });
-      if (user) {
-        return NextResponse.json(user, { status: 200 });
+    const user = await prisma.user.findUnique({
+      where: { id: userFromToken.id },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        role: true,
+        createdAt: true
       }
-    } catch (error) {
-      
-    }
-  }
+    });
 
-  return NextResponse.json({
-    code: "AUTH_TOKEN_MISSING_OR_INVALID",
-    message: "El token enviado no es válido o el usuario no existe.",
-    details: []
-  }, { status: 401 });
+    if (!user) {
+      return NextResponse.json({ 
+        code: "USER_NOT_FOUND", 
+        message: "El usuario ya no existe en la base de datos." 
+      }, { status: 404 });
+    }
+
+    return NextResponse.json(user);
+
+  } catch (error) {
+    console.error("Error en /api/v1/users/me:", error);
+    return NextResponse.json({ 
+      code: "INTERNAL_SERVER_ERROR", 
+      message: "Error interno del servidor al obtener el perfil." 
+    }, { status: 500 });
+  }
 }
