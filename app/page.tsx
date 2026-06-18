@@ -30,7 +30,7 @@ export default function Home() {
         if (!response.ok) throw new Error("Error al obtener los productos");
         
         const json = await response.json();
-        setProducts(json.data || []);
+        setProducts(Array.isArray(json) ? json : json.data || []);
       } catch (err: any) {
         setError(err.message);
       } finally {
