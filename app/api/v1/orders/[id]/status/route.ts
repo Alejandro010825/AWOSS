@@ -1,50 +1,42 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { getUserFromRequest } from '@/lib/auth';
 
 export async function PATCH(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  request: Request,
+  { params }: { params: { id: string } }
 ) {
-  const authHeader = request.headers.get('authorization');
-  
-  if (!authHeader || !authHeader.includes('admin-token')) {
-    return NextResponse.json({ 
-      code: "INSUFFICIENT_PERMISSIONS", 
-      message: "Solo el administrador puede mutar estados.",
-      details: []
-    }, { status: 403 });
-  }
-
-  const { id } = await params;
-
   try {
-    const order = await prisma.order.findUnique({ where: { id } });
-    if (!order) {
-      return NextResponse.json({ code: "RESOURCE_NOT_FOUND", message: "Orden no encontrada." }, { status: 404 });
+    const user = await getUserFromRequest(request);
+    if (!user) {
+      return NextResponse.json({ 
+        code: "AUTH_TOKEN_MISSING_OR_INVALID", 
+        message: "No autorizado." 
+      }, { status: 401 });
+    }
+
+    if (user.role !== 'ADMIN') {
+      return NextResponse.json({ 
+        code: "INSUFFICIENT_PERMISSIONS", 
+        message: "Solo administradores pueden cambiar el estado de una orden." 
+      }, { status: 403 });
     }
 
     const body = await request.json();
-
-    if (order.status === 'PENDING' && body.status === 'SHIPPED') {
-      return NextResponse.json({
-        code: "INVALID_STATE_TRANSITION",
-        message: "La petición rompe el ciclo de vida o los pasos lógicos del negocio.",
-        details: [{ field: "status", rule: "cannot_skip_paid_state" }]
-      }, { status: 409 });
-    }
+    const { status } = body; 
 
     const updatedOrder = await prisma.order.update({
-      where: { id },
-      data: { status: body.status }
+      where: { id: params.id },
+      data: { status }
     });
 
-    return NextResponse.json({
-      id: updatedOrder.id,
-      status: updatedOrder.status,
-      message: "Estado modificado con éxito."
-    }, { status: 200 });
+    return NextResponse.json(updatedOrder);
 
-  } catch {
-    return NextResponse.json({ code: "VALIDATION_FAILED", message: "JSON inválido o error al actualizar.", details: [] }, { status: 422 });
+  } catch (error) {
+    console.error("Error al actualizar estado de orden:", error);
+    return NextResponse.json({ 
+      code: "INTERNAL_SERVER_ERROR", 
+      message: "Error interno del servidor." 
+    }, { status: 500 });
   }
 }

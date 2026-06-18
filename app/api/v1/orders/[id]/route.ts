@@ -1,47 +1,45 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { getUserFromRequest } from '@/lib/auth';
 
 export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  request: Request,
+  { params }: { params: { id: string } }
 ) {
-  const authHeader = request.headers.get('authorization');
-  
-  if (!authHeader) {
-    return NextResponse.json({
-      code: "AUTH_TOKEN_MISSING_OR_INVALID",
-      message: "No autorizado.",
-      details: []
-    }, { status: 401 });
-  }
-
-  const token = authHeader.split(' ')[1];
-  const { id } = await params;
-
   try {
+    const user = await getUserFromRequest(request);
+    if (!user) {
+      return NextResponse.json({ 
+        code: "AUTH_TOKEN_MISSING_OR_INVALID", 
+        message: "No autorizado." 
+      }, { status: 401 });
+    }
+
     const order = await prisma.order.findUnique({
-      where: { id },
-      include: { items: true }
+      where: { id: params.id }
     });
 
     if (!order) {
-      return NextResponse.json({
-        code: "RESOURCE_NOT_FOUND",
-        message: "La orden no existe.",
-        details: [{ field: "id", rule: "not_found" }]
+      return NextResponse.json({ 
+        code: "NOT_FOUND", 
+        message: "La orden no existe." 
       }, { status: 404 });
     }
 
-    if (token !== 'admin-token' && token !== `client-token-${order.customerId}`) {
-      return NextResponse.json({
-        code: "INSUFFICIENT_PERMISSIONS",
-        message: "El rol vinculado al token de usuario no posee los permisos de escritura del endpoint.",
-        details: [{ field: "token", rule: "not_owner_or_admin" }]
+    if (user.id !== order.customerId && user.role !== 'ADMIN') {
+      return NextResponse.json({ 
+        code: "INSUFFICIENT_PERMISSIONS", 
+        message: "No posees permisos para ver esta orden." 
       }, { status: 403 });
     }
 
-    return NextResponse.json(order, { status: 200 });
-  } catch {
-    return NextResponse.json({ code: "INTERNAL_ERROR", message: "Error.", details: [] }, { status: 500 });
+    return NextResponse.json(order);
+
+  } catch (error) {
+    console.error("Error al consultar la orden:", error);
+    return NextResponse.json({ 
+      code: "INTERNAL_SERVER_ERROR", 
+      message: "Error interno del servidor." 
+    }, { status: 500 });
   }
 }
