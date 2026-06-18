@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken'; 
+import * as jose from 'jose';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'tu_secreto_super_seguro';
 
@@ -36,18 +36,19 @@ export async function POST(request: Request) {
       }, { status: 401 });
     }
 
-    const token = jwt.sign(
-      { id: user.id, email: user.email, role: user.role },
-      JWT_SECRET,
-      { expiresIn: '1d' }
-    );
+    // Firmar el token JWT usando jose para que sea compatible con nuestro helper
+    const secret = new TextEncoder().encode(JWT_SECRET);
+    const token = await new jose.SignJWT({ id: user.id, email: user.email, role: user.role })
+      .setProtectedHeader({ alg: 'HS256' })
+      .setIssuedAt()
+      .setExpirationTime('1d')
+      .sign(secret);
 
     const response = NextResponse.json({
       token,
       user: {
         id: user.id,
         email: user.email,
-        name: user.name,
         role: user.role
       }
     });

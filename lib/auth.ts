@@ -1,4 +1,3 @@
-import { NextRequest } from 'next/server';
 import * as jose from 'jose';
 
 export interface JWTPayload {
@@ -10,7 +9,7 @@ export interface JWTPayload {
  * Obtiene y valida el usuario desde las cabeceras de la petición.
  * Retorna un objeto con id y role si es válido, o null en caso contrario.
  */
-export async function getUserFromRequest(req: NextRequest): Promise<JWTPayload | null> {
+export async function getUserFromRequest(req: Request): Promise<JWTPayload | null> {
   const authHeader = req.headers.get('authorization');
   
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
