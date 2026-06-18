@@ -10,13 +10,21 @@
   },
   "dependencies": {
     "@prisma/client": "^6.19.3",
+<<<<<<< HEAD
     "jose": "^6.2.3",
+=======
+    "bcryptjs": "^3.0.3",
+>>>>>>> d418d50 (configuracion de prisma y env)
     "next": "16.2.9",
     "react": "19.2.4",
     "react-dom": "19.2.4"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
+<<<<<<< HEAD
+=======
+    "@types/bcryptjs": "^2.4.6",
+>>>>>>> d418d50 (configuracion de prisma y env)
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
