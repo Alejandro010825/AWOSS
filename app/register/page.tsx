@@ -31,7 +31,7 @@ export default function RegisterPage() {
         throw new Error(data.message || "Error al registrar la cuenta");
       }
 
-      // El backend devuelve el token para autologuear al usuario
+
       login(data.token, data.user.role, data.user.email);
     } catch (err: any) {
       setError(err.message);

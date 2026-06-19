@@ -28,7 +28,8 @@ export async function GET(request: NextRequest) {
       select: {
         id: true,
         email: true,
-        role: true
+        role: true,
+        createdAt: true
       }
     });
 

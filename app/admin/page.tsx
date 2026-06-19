@@ -10,7 +10,7 @@ type Order = { id: string; folio: string; customerId: string; total: number; sta
 type User = { id: string; email: string; role: string; createdAt: string };
 
 export default function AdminDashboard() {
-  const { isAuthenticated, isAdmin, token } = useAuth();
+  const { isAuthenticated, isAdmin, token, email } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
   
@@ -22,13 +22,13 @@ export default function AdminDashboard() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Estados del formulario y Modal
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newProduct, setNewProduct] = useState({ name: "", price: "", categoryId: "", inStock: true });
   const [formError, setFormError] = useState("");
   const [formSuccess, setFormSuccess] = useState("");
 
-  // Modal de confirmación genérico
+
   const [confirmModal, setConfirmModal] = useState<{
     isOpen: boolean;
     type: 'ORDER' | 'PRODUCT' | null;
@@ -45,7 +45,7 @@ export default function AdminDashboard() {
     message: ""
   });
 
-  // Filtros de Productos
+
   const [stockFilter, setStockFilter] = useState("ALL");
   const [categoryFilter, setCategoryFilter] = useState("ALL");
 
@@ -232,7 +232,7 @@ export default function AdminDashboard() {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {users.map(u => (
+                  {users.filter(u => u.email !== email).map(u => (
                     <tr key={u.id} className="hover:bg-gray-50 transition">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm font-bold text-slate-800">{u.email}</div>
@@ -245,7 +245,7 @@ export default function AdminDashboard() {
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-medium">
-                        Cuenta Activa
+                        {new Date(u.createdAt).toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' })}
                       </td>
                     </tr>
                   ))}
@@ -351,7 +351,7 @@ export default function AdminDashboard() {
         </div>
       )}
 
-      {/* Modal para Agregar Producto */}
+
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
           <div className="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in duration-200">
@@ -401,7 +401,7 @@ export default function AdminDashboard() {
         </div>
       )}
 
-      {/* Modal de Confirmación de Cambios Múltiples */}
+
       {confirmModal.isOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
           <div className="bg-white rounded-xl shadow-2xl w-full max-w-sm overflow-hidden animate-in fade-in zoom-in duration-200">

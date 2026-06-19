@@ -9,6 +9,7 @@ type Product = { name: string };
 type OrderItem = { quantity: number; unitPrice: number; product: Product };
 type Order = {
   id: string;
+  folio: string;
   total: number;
   status: string;
   createdAt: string;

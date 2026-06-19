@@ -20,7 +20,7 @@ export async function POST(request: Request) {
       }, { status: 400 });
     }
 
-    // Verificar si el correo ya está registrado
+
     const existingUser = await prisma.user.findUnique({
       where: { email }
     });
@@ -32,10 +32,10 @@ export async function POST(request: Request) {
       }, { status: 409 });
     }
 
-    // Encriptar la contraseña
+
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Crear el usuario con rol CLIENT por defecto
+
     const newUser = await prisma.user.create({
       data: {
         email,
@@ -44,7 +44,7 @@ export async function POST(request: Request) {
       }
     });
 
-    // Firmar el token JWT para iniciar sesión automáticamente
+
     const secret = new TextEncoder().encode(JWT_SECRET);
     const token = await new jose.SignJWT({ id: newUser.id, email: newUser.email, role: newUser.role })
       .setProtectedHeader({ alg: 'HS256' })

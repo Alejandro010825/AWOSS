@@ -31,7 +31,7 @@ export async function getUserFromRequest(req: Request): Promise<JWTPayload | nul
       role: payload.role as string,
     };
   } catch (error) {
-    // Retorna null si el token expiró, es inválido o tiene una firma incorrecta
+    console.error("JWT Verification Error:", error);
     return null;
   }
 }

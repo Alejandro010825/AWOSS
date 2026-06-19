@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { getUserFromRequest } from '@/lib/auth'; // 1. Importamos el helper seguro
+import { getUserFromRequest } from '@/lib/auth';
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);

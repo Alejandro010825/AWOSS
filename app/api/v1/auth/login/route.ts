@@ -20,7 +20,7 @@ export async function POST(request: Request) {
       }, { status: 400 });
     }
 
-    // Buscamos al usuario por correo electrónico en la base de datos
+
     const user = await prisma.user.findUnique({
       where: { email }
     });
@@ -40,7 +40,7 @@ export async function POST(request: Request) {
       }, { status: 401 });
     }
 
-    // Firmar el token JWT usando jose para que sea compatible con nuestro helper
+
     const secret = new TextEncoder().encode(JWT_SECRET);
     const token = await new jose.SignJWT({ id: user.id, email: user.email, role: user.role })
       .setProtectedHeader({ alg: 'HS256' })

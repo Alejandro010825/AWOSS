@@ -18,7 +18,7 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   
-  // Paginación y Búsqueda
+
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [searchInput, setSearchInput] = useState("");
@@ -82,12 +82,12 @@ export default function Home() {
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setSearchQuery(searchInput);
-    setCurrentPage(1); // Reiniciar a la página 1 cuando se hace una nueva búsqueda
+    setCurrentPage(1);
   };
 
   return (
     <div className="min-h-screen bg-slate-50">
-      {/* Hero Section */}
+
       <section className="relative overflow-hidden bg-indigo-900 text-white py-20 lg:py-28 rounded-b-[3rem] shadow-xl mb-12">
         <div className="absolute inset-0 bg-gradient-to-r from-indigo-900 via-indigo-800 to-purple-900 opacity-90"></div>
         <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
@@ -107,10 +107,10 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Catalog Section */}
+
       <main className="max-w-6xl mx-auto px-4 pb-24">
         
-        {/* Buscador */}
+
         <div className="mb-10 flex flex-col md:flex-row justify-between items-center gap-6">
           <h2 className="text-2xl font-bold text-slate-800 tracking-tight whitespace-nowrap">Nuestro Catálogo</h2>
           
@@ -173,7 +173,7 @@ export default function Home() {
               {products.map((product) => (
                 <div key={product.id} className="group bg-white rounded-2xl shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] border border-slate-100 overflow-hidden flex flex-col transition-all duration-300 hover:-translate-y-1">
                   
-                  {/* Imagen Simulada */}
+
                   <div className="h-48 bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center relative overflow-hidden group-hover:from-indigo-50 group-hover:to-purple-50 transition-colors">
                     <div className="w-16 h-16 bg-white rounded-2xl shadow-sm flex items-center justify-center border border-slate-100 transform group-hover:scale-110 transition-transform duration-300">
                       <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-indigo-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -191,7 +191,7 @@ export default function Home() {
                     )}
                   </div>
                   
-                  {/* Detalles */}
+
                   <div className="p-5 flex-grow flex flex-col">
                     {product.category && (
                       <span className="text-[10px] font-bold tracking-wider uppercase text-indigo-400 mb-2 block">
@@ -231,7 +231,7 @@ export default function Home() {
               ))}
             </div>
 
-            {/* Paginación */}
+
             {totalPages > 1 && (
               <div className="flex items-center justify-center gap-4 bg-white p-3 rounded-2xl shadow-sm border border-slate-100 max-w-xs mx-auto">
                 <button
