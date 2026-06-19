@@ -117,7 +117,7 @@ export default function MyOrdersPage() {
                 <div>
                   <p className="text-sm text-slate-500 font-medium mb-1">Orden realizada el {new Date(order.createdAt).toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
                   <p className="font-bold text-slate-800">
-                    Pedido <span className="text-indigo-600">#{order.id.split('-')[0].toUpperCase()}</span>
+                    Pedido <span className="text-indigo-600">#{order.folio}</span>
                   </p>
                 </div>
                 <div className="flex items-center gap-4">

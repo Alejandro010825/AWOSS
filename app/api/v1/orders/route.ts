@@ -45,9 +45,13 @@ export async function POST(request: Request) {
       };
     });
 
+    const crypto = require('crypto');
+    const folio = crypto.randomBytes(4).toString('hex').toUpperCase();
+
     const newOrder = await prisma.order.create({
       data: {
         customerId: user.id, 
+        folio,
         total: calculatedTotal,
         status: 'PENDIENTE',
         items: {

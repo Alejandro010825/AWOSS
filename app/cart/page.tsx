@@ -58,7 +58,7 @@ export default function CartPage() {
       }
 
       const orderData = await response.json();
-      setSuccessMsg(`¡Orden creada exitosamente! (ID: ${orderData.id})`);
+      setSuccessMsg(`¡Orden creada exitosamente! (Folio: #${orderData.folio})`);
       clearCart();
     } catch (err: any) {
       setError(err.message);

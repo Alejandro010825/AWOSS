@@ -6,7 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 
 type Category = { id: string; name: string };
 type Product = { id: string; name: string; price: number; inStock: boolean; category: Category };
-type Order = { id: string; customerId: string; total: number; status: string; createdAt: string; user: { email: string }; items: any[] };
+type Order = { id: string; folio: string; customerId: string; total: number; status: string; createdAt: string; user: { email: string }; items: any[] };
 type User = { id: string; email: string; role: string; createdAt: string };
 
 export default function AdminDashboard() {
@@ -180,7 +180,7 @@ export default function AdminDashboard() {
                   {orders.map(order => (
                     <tr key={order.id} className="hover:bg-gray-50 transition">
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm font-bold text-indigo-600 uppercase">#{order.id.split('-')[0]}</div>
+                        <div className="text-sm font-bold text-indigo-600 uppercase">#{order.folio}</div>
                         <div className="text-sm text-gray-500">{order.user?.email || 'Usuario Desconocido'}</div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
