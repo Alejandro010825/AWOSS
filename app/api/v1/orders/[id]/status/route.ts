@@ -26,6 +26,30 @@ export async function PATCH(
     const body = await request.json();
     const { status } = body; 
 
+    const currentOrder = await prisma.order.findUnique({
+      where: { id }
+    });
+
+    if (!currentOrder) {
+      return NextResponse.json({ message: "Orden no encontrada." }, { status: 404 });
+    }
+
+    const validTransitions: Record<string, string[]> = {
+      'PENDIENTE': ['PROCESANDO'],
+      'PROCESANDO': ['ENVIADO'],
+      'ENVIADO': ['ENTREGADO'],
+      'ENTREGADO': []
+    };
+
+    const currentStatus = currentOrder.status;
+    
+    if (!validTransitions[currentStatus]?.includes(status)) {
+      return NextResponse.json({ 
+        code: "INVALID_STATUS_TRANSITION",
+        message: `Transición inválida. No se puede cambiar el estado de ${currentStatus} a ${status}.` 
+      }, { status: 409 });
+    }
+
     const updatedOrder = await prisma.order.update({
       where: { id },
       data: { status }

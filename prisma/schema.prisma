@@ -34,7 +34,7 @@ model Product {
 model Order {
   id         String      @id @default(uuid())
   customerId String
-  status     String      @default("PENDING") 
+  status     String      @default("PENDIENTE") 
   total      Float
   createdAt  DateTime    @default(now())
   user       User        @relation(fields: [customerId], references: [id])

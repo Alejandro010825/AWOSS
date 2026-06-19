@@ -5,20 +5,31 @@ import { getUserFromRequest } from '@/lib/auth'; // 1. Importamos el helper segu
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const search = searchParams.get('search');
+  const page = Math.max(1, parseInt(searchParams.get('page') || '1'));
+  const limit = Math.max(1, parseInt(searchParams.get('limit') || '10'));
+  
+  const skip = (page - 1) * limit;
 
   try {
-    const products = await prisma.product.findMany({
-      where: search ? { name: { contains: search, mode: 'insensitive' } } : undefined,
-      include: { category: true }
-    });
+    const where = search ? { name: { contains: search, mode: 'insensitive' } as any } : undefined;
+
+    const [products, total] = await Promise.all([
+      prisma.product.findMany({
+        where,
+        include: { category: true },
+        skip,
+        take: limit
+      }),
+      prisma.product.count({ where })
+    ]);
 
     return NextResponse.json({
       data: products,
       meta: {
-        page: 1,
-        limit: 10,
-        total: products.length,
-        totalPages: 1
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit)
       }
     }, { status: 200 });
 
@@ -49,14 +60,27 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { name, price, categoryId, inStock } = body;
 
-    if (!name || !price || !categoryId) {
-      return NextResponse.json({ message: "Campos obligatorios faltantes" }, { status: 400 });
+    if (!name || price === undefined || price === null || !categoryId) {
+      return NextResponse.json({ 
+        code: "VALIDATION_FAILED",
+        message: "Campos obligatorios faltantes.",
+        details: [{ field: "payload", rule: "required_fields_missing" }]
+      }, { status: 422 });
+    }
+
+    const parsedPrice = typeof price === 'string' ? parseFloat(price) : price;
+    if (isNaN(parsedPrice) || parsedPrice <= 0) {
+      return NextResponse.json({ 
+        code: "VALIDATION_FAILED",
+        message: "El precio debe ser mayor a 0.",
+        details: [{ field: "price", rule: "minimum_value_1" }]
+      }, { status: 422 });
     }
 
     const newProduct = await prisma.product.create({
       data: {
         name,
-        price: typeof price === 'string' ? parseFloat(price) : price,
+        price: parsedPrice,
         categoryId,
         inStock: inStock ?? true
       }

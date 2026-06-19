@@ -19,7 +19,11 @@ export async function getUserFromRequest(req: Request): Promise<JWTPayload | nul
   const token = authHeader.split(' ')[1];
   
   try {
-    const secret = new TextEncoder().encode(process.env.JWT_SECRET);
+    const JWT_SECRET = process.env.JWT_SECRET;
+    if (!JWT_SECRET) {
+      throw new Error("JWT_SECRET no está definido en las variables de entorno");
+    }
+    const secret = new TextEncoder().encode(JWT_SECRET);
     const { payload } = await jose.jwtVerify(token, secret);
     
     return {

@@ -15,34 +15,38 @@ export async function POST(request: Request) {
 
     if (!email || !password) {
       return NextResponse.json({
-        code: "INVALID_CREDENTIALS",
+        code: "INVALID_INPUT",
         message: "El email y la contraseña son requeridos."
       }, { status: 400 });
     }
 
-    // Buscamos al usuario por correo electrónico en la base de datos
-    const user = await prisma.user.findUnique({
+    // Verificar si el correo ya está registrado
+    const existingUser = await prisma.user.findUnique({
       where: { email }
     });
 
-    if (!user) {
+    if (existingUser) {
       return NextResponse.json({
-        code: "AUTH_TOKEN_MISSING_OR_INVALID",
-        message: "Credenciales inválidas o el usuario no existe."
-      }, { status: 401 });
+        code: "EMAIL_ALREADY_IN_USE",
+        message: "El correo electrónico ya está en uso."
+      }, { status: 409 });
     }
 
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-    if (!isPasswordValid) {
-      return NextResponse.json({
-        code: "AUTH_TOKEN_MISSING_OR_INVALID",
-        message: "Credenciales inválidas o el usuario no existe."
-      }, { status: 401 });
-    }
+    // Encriptar la contraseña
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Firmar el token JWT usando jose para que sea compatible con nuestro helper
+    // Crear el usuario con rol CLIENT por defecto
+    const newUser = await prisma.user.create({
+      data: {
+        email,
+        password: hashedPassword,
+        role: "CLIENT"
+      }
+    });
+
+    // Firmar el token JWT para iniciar sesión automáticamente
     const secret = new TextEncoder().encode(JWT_SECRET);
-    const token = await new jose.SignJWT({ id: user.id, email: user.email, role: user.role })
+    const token = await new jose.SignJWT({ id: newUser.id, email: newUser.email, role: newUser.role })
       .setProtectedHeader({ alg: 'HS256' })
       .setIssuedAt()
       .setExpirationTime('1d')
@@ -51,11 +55,11 @@ export async function POST(request: Request) {
     const response = NextResponse.json({
       token,
       user: {
-        id: user.id,
-        email: user.email,
-        role: user.role
+        id: newUser.id,
+        email: newUser.email,
+        role: newUser.role
       }
-    });
+    }, { status: 201 });
 
     response.cookies.set('token', token, {
       httpOnly: true,
@@ -68,10 +72,10 @@ export async function POST(request: Request) {
     return response;
 
   } catch (error) {
-    console.error("Error en el login:", error);
+    console.error("Error en el registro:", error);
     return NextResponse.json({
       code: "INTERNAL_SERVER_ERROR",
-      message: "Ocurrió un error inesperado en el servidor."
+      message: "Ocurrió un error inesperado al registrar la cuenta."
     }, { status: 500 });
   }
 }
